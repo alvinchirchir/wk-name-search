@@ -1,0 +1,12 @@
+config:
+  target: 'http://localhost:30873'
+  phases:
+    - duration: 300
+      arrivalRate: 200
+      rampTo: 200
+
+scenarios:
+  - name: 'Trigger autoscaler'
+    flow:
+      - get:
+          url: '/?name=Tom_Holland'

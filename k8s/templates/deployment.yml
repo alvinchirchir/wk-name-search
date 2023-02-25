@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: wk-name-search
+  name: wk-name-search
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wk-name-search
+  template:
+    metadata:
+      labels:
+        app: wk-name-search
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: /metrics
+        prometheus.io/port: '3000'
+    spec:
+      containers:
+        - image: alvinchirchir/wk-name-search
+          name: wk-name-search
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: '3000'
+            - name: WIKIPEDIA_API_URL
+              value: 'https://en.wikipedia.org/w/api.php'   
+            - name: WIKIPEDIA_ACTION
+              value: 'query' 
+            - name: WIKIPEDIA_PROP
+              value: 'revisions'
+            - name: WIKIPEDIA_RV_LIMIT
+              value: '1'   
+            - name: WIKIPEDIA_FORMAT
+              value: 'json'   
+            - name: WIKIPEDIA_FORMAT_VERSION
+              value: '2'
+            - name: WIKIPEDIA_RV_PROP
+              value: 'content'           
