@@ -11,11 +11,11 @@ export class AppController {
   @ApiQuery({
     name: 'name',
     type: String,
-    description: 'The name of the person to look up on English Wikipedia',
+    description: 'This query parameter expects a string input with the name of a person to look up on English Wikipedia. The endpoint requires names to follow a specific format where each word is separated by a single underscore and the first letter of each word is capitalized. However, to make it more user-friendly, the input string can also contain spaces or underscores between words, which will be transformed by the endpoint to follow the required naming convention. For example, "Nicki Minaj" or "nicki_minaj" are both valid inputs for this query parameter, and will be transformed into "Nicki_Minaj" by the endpoint. This naming convention is necessary to ensure that the endpoint can correctly retrieve the desired information from Wikipedia.',
     example: 'Tom Holland',
   })
   @ApiOkResponse({
-    description: 'The short description of the person',
+    description: 'Short description of the person.',
     schema: {
       properties: {
         description: {

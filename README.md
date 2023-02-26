@@ -227,7 +227,7 @@ The application has both unit tests and end-to-end (e2e) tests.
 ##### Unit Tests
 To run the unit tests, use the following command:
 ```shell
-$ npm run test:unit
+$ npm run test
 ```
 ##### End-to-End (E2E) Tests
 To run the end-to-end tests, use the following command:
