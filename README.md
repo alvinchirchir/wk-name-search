@@ -3,7 +3,6 @@
 The Wikimedia Name Search API is a RESTful API that leverages the MediaWiki API to produce short descriptions of individuals based on their English Wikipedia page content. The API takes the name of the person as input, queries the MediaWiki API using their name, and returns the short description found on their English Wikipedia page. The API is designed to be easy to use and can be integrated into various applications to provide a quick and concise summary of an individual's profession or occupation.
 
 
-
 #### Installation Guide
 This guide will walk you through the steps to install and run the application on your local machine.
 
@@ -11,7 +10,7 @@ There are three ways to install and run the project:
 
 - Raw Node.js installation
 - Docker container installation
-- Helm chart installation
+- Helm chart installation with scaler
 
 
 Choose the installation method that best fits your environment and requirements. The following sections provide detailed instructions for each method.
@@ -64,6 +63,16 @@ $ npm run start:prod
 
 7. The server should now be running at http://localhost:3000.
 
+###### API Documentation
+This API is documented using Swagger. Swagger provides a user-friendly interface for exploring and testing the API endpoints.
+To access the Swagger documentation:
+1. Start the application.
+2. Navigate to http://localhost:3000/api in your web browser.
+
+The Swagger documentation includes:
+- A list of all available endpoints
+- Details about each endpoint, including its parameters, responses, and example requests and responses
+
 ##### Docker container installation
 To install and run the project using Docker container, follow these steps:
 
@@ -90,7 +99,20 @@ $ docker build -t wk-name-search .
 ```shell
 $ docker run -p 3000:3000 wk-name-search
 ```
+5. The server should now be running at http://localhost:3000.
+
+###### API Documentation
+This API is documented using Swagger. Swagger provides a user-friendly interface for exploring and testing the API endpoints.
+To access the Swagger documentation:
+1. Start the application.
+2. Navigate to http://localhost:3000/api in your web browser.
+
+The Swagger documentation includes:
+- A list of all available endpoints
+- Details about each endpoint, including its parameters, responses, and example requests and responses
+
 ##### Helm Chart Installation
+When installing the application using Helm, an autoscaler is included by default. This means that if the CPU process usage exceeds 50% for a single instance, the autoscaler will automatically deploy multiple replicas of the instance, with the minimum number of replicas set to 1 and the maximum number set to 5. This ensures that the application can handle increased traffic and load without downtime or performance issues. Here's how to install the application using Helm. Ensure you checkout the load test section to see how to increase CPU usage.
 
 ###### Requirements
 - A Kubernetes cluster up and running, with kubectl configured and pointing to the cluster.
@@ -128,35 +150,78 @@ wk-name-search-prometheus-server    ClusterIP   10.99.185.33    <none>        80
 
 ```
 5. The wk-name-search server should now be running at `http://localhost:<DYNAMIC_PORT>`. For example from the above we can access the server from `http://localhost:30560`
-6. Additionally we can access grafana to visually see the metrics scrapped by prometheus. Follow the steps below to view analytics using grafana
-- Access the dashboard from `http://localhost:<DYNAMIC_PORT>`. For example from the above we can see that wk-name-search-grafana is running locally as `http://localhost:31763`
-- Use admin as username. Password can be obtained by running the command
+6. Additionally we can access grafana to visually see the metrics scrapped by prometheus. Follow the steps below to view analytics.
+
+###### Accessing Grafana
+1. Access the Grafana dashboard by entering the URL http://localhost:<DYNAMIC_PORT> in your web browser. For example, if the Grafana service is running locally on port 31763, the URL would be http://localhost:31763.
+
+2. Use "admin" as the username to log in to Grafana.
+
+3. Obtain the password by running the following command in your terminal:
+
 ```console
 $ kubectl get secret --namespace default wk-name-search-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
-- Once logged in we first need to add prometheus as a source provider. 
-- Go to settings using the gear icon left corner in the sidebar. Select Add data source -> Search and choose Prometheus. We only need to change the url setting. Insert `http://wk-name-search-prometheus-server:80` and leave the rest as default. Proceed to select save and test. If configured correctly a green notification should appear in the top left.
-- We then proceed to import a dashboard.Select dashboard icon from side menu. Select 'New' -> 'Import'. You should see import from grafana.com. Since we are using nodejs we will import a nodejs dashboard from  https://grafana.com/grafana/dashboards/11159-nodejs-application-dashboard/ . Copy the ID from the link and Load into grafana. Proceed to select prometheus as data source. If all has been configured correctly you should be able to view metrics.
+This will output the admin password which you can use to log in to Grafana.
+
+4. Once you have logged in to Grafana, click on the gear icon in the left corner of the sidebar to access the settings page.
+5. Click on "Add data source" and select "Prometheus" from the list of available data sources.
+6. In the "HTTP" section of the settings page, change the URL to `http://wk-name-search-prometheus-server:80`. Leave all other settings at their default values.
+7. Click "Save & Test". If everything has been configured correctly, a green notification should appear in the top left of the screen.
+8. To import a dashboard, click on the dashboard icon in the sidebar and select "New" -> "Import".
+9. Select "Import from grafana.com" and enter the ID of the Node.js dashboard you want to import, which can be found at https://grafana.com/grafana/dashboards/11159-nodejs-application-dashboard/.
+10. Select "Load" and choose "Prometheus" as the data source.
+11. If everything has been configured correctly, you should now be able to view metrics in the Node.js dashboard.
 
 ![alt text](https://firebasestorage.googleapis.com/v0/b/github-resources.appspot.com/o/Grafana%20Dashboard%2FScreenshot%202023-02-26%20at%2015.52.05.jpg?alt=media&token=dd9ddef9-c0d9-4ade-8fef-a7af97300136)
 
-
-
-#### Usage
-Once the application is running, you can access it by visiting http://localhost:3000 in your web browser.
-
-#### API Documentation
+###### API Documentation
 This API is documented using Swagger. Swagger provides a user-friendly interface for exploring and testing the API endpoints.
 To access the Swagger documentation:
-1. Start the application.
-2. Navigate to http://localhost:3000/api in your web browser.
+- Navigate to http://localhost:<DYNAMIC_PORT>/api in your web browser. Make sure you insert appropriate port for wk-name-search server.
 
 The Swagger documentation includes:
-
 - A list of all available endpoints
 - Details about each endpoint, including its parameters, responses, and example requests and responses
 
-#### Running Tests
+#### Load Tests
+When helm is used for installation we can run various load tests on our system. A dynamic script has been  used to test server for availability and reliability. 
+
+
+
+You will first have to install artillery on your system in order to run tests to check for horizontal scaling.
+
+Install Artillery
+```console
+$ npm install -g artillery
+```
+
+Open the script and configure dynamic port assigned by Kubernetes to point to wk-name-search server PORT.
+```console
+$ nano ./k8s/load-tester/artillery-config.yaml
+```
+Run script
+```console
+$ artillery run ./k8s/load-tester/artillery-config.yaml
+```
+Check scaling using kubectl command
+```console
+$ kubectl get hpa
+$ kubectl get hpa --watch
+```
+If you get an error you will have to check if scaler was installed
+```console
+$ kubectl get scaledobject
+$ kubectl describe scaledobject <name>
+```
+If you don't get any scaler you will have to update chart dependencies by running the command below to reinstall scaler. Ensure you update <DYNAMIC_PORT> fields as they will get updated as well.
+
+```console
+$ helm update wk-name-search ./k8s  
+```
+
+
+#### Unit and E2E tests
 The application has both unit tests and end-to-end (e2e) tests.
 
 ##### Unit Tests
@@ -169,8 +234,6 @@ To run the end-to-end tests, use the following command:
 ```shell
 $ npm run test:e2e
 ```
-
-
 
 ## License
 
