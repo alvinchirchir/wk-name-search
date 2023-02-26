@@ -23,7 +23,7 @@ describe('AppController (e2e)', () => {
     it('should return a short description when given a valid name', async () => {
       const name = 'Tom_Holland';
       const response = await request(app.getHttpServer())
-        .get('/')
+        .get('/short-description')
         .query({ name })
         .expect(HttpStatus.OK);
 
@@ -34,7 +34,7 @@ describe('AppController (e2e)', () => {
     it('should return a 404 status code when given an invalid name', async () => {
       const name = 'Invalid Name';
       const response = await request(app.getHttpServer())
-        .get('/')
+        .get('/short-description')
         .query({ name })
         .expect(HttpStatus.NOT_FOUND);
 
@@ -47,7 +47,7 @@ describe('AppController (e2e)', () => {
     it('should return a 400 status code when given a name with no short description and similar names', async () => {
       const name = 'John';
       const response = await request(app.getHttpServer())
-        .get('/')
+        .get('/short-description')
         .query({ name })
         .expect(HttpStatus.BAD_REQUEST);
 
