@@ -1,4 +1,9 @@
 # Wk-name-search
+
+The Wikimedia Name Search API is a RESTful API that leverages the MediaWiki API to produce short descriptions of individuals based on their English Wikipedia page content. The API takes the name of the person as input, queries the MediaWiki API using their name, and returns the short description found on their English Wikipedia page. The API is designed to be easy to use and can be integrated into various applications to provide a quick and concise summary of an individual's profession or occupation.
+
+
+
 #### Installation Guide
 This guide will walk you through the steps to install and run the application on your local machine.
 
