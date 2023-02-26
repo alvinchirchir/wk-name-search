@@ -10,7 +10,7 @@ There are three ways to install and run the project:
 
 - Raw Node.js installation
 - Docker container installation
-- Helm chart installation with scaler
+- Helm chart installation with Scaler,Grafana,Prometheus
 
 
 Choose the installation method that best fits your environment and requirements. The following sections provide detailed instructions for each method.
