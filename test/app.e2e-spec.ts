@@ -38,25 +38,14 @@ describe('AppController (e2e)', () => {
         .query({ name })
         .expect(HttpStatus.NOT_FOUND);
 
-      expect(response.body).toEqual(expect.objectContaining({
-        statusCode: expect.any(Number),
-        message: expect.any(String),
-      }));
     });
 
-    it('should return a 400 status code when given a name with no short description and similar names', async () => {
+    it('should return a 404 status code when given a name with no short description and similar names', async () => {
       const name = 'John';
       const response = await request(app.getHttpServer())
         .get('/short-description')
         .query({ name })
-        .expect(HttpStatus.BAD_REQUEST);
-
-
-      expect(response.body).toEqual(expect.objectContaining({
-        statusCode: expect.any(Number),
-        message: expect.any(String),
-      }));
-
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiGatewayTimeoutResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { GetShortDescriptionInput, GetShortDescriptionOutput } from './dto/schema'
 @Controller()
@@ -15,7 +15,7 @@ export class AppController {
     example: 'Tom Holland',
   })
   @ApiOkResponse({
-    description: 'Short description of the person.',
+    description: 'A short description of the requested person. This response returns a JSON with a description field bearing the short description.',
     schema: {
       properties: {
         description: {
@@ -27,7 +27,7 @@ export class AppController {
   })
 
   @ApiNotFoundResponse({
-    description: 'The person was not found on English Wikipedia',
+    description: 'The requested resource was not found. This error occurs when the API is unable to find the requested person on English Wikipedia.',
     schema: {
       properties: {
         statusCode: {
@@ -36,13 +36,18 @@ export class AppController {
         },
         message: {
           type: 'string',
-          example: 'Person not found on English Wikipedia',
+          // example: 'Person not found on English Wikipedia',
+        },
+        page: {
+          type: 'string',
+           example: 'Indicates whether pages with similar names exist. Suggestions will be included in message string if true',
         }
       },
     },
   })
+
   @ApiBadRequestResponse({
-    description: 'No short description was found on English Wikipedia but there might be similar names : ...',
+    description: 'The request was malformed or contained invalid data. This error occurs when the API is unable to process the request due to validation errors, such as missing or invalid parameters.',
     schema: {
       properties: {
         statusCode: {
@@ -51,8 +56,26 @@ export class AppController {
         },
         message: {
           type: 'string',
-          example: 'No short description was found on English Wikipedia but there might be similar names : ',
+          example: [],
+
+        },
+        error: {
+          type: 'string',
         }
+      },
+    },
+  })
+  @ApiServiceUnavailableResponse({
+    description: 'The requested service is currently unavailable. This error occurs when the API is unable to connect to the Wikimedia API or when the Wikimedia API is down for maintenance or other reasons.',
+    schema: {
+      properties: {
+        statusCode: {
+          type: 'integer',
+          example: HttpStatus.SERVICE_UNAVAILABLE,
+        },
+        message: {
+          type: 'string',
+        },
       },
     },
   })

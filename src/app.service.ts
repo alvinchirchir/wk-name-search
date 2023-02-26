@@ -51,13 +51,19 @@ export class AppService {
       // Check if the pages array is empty
       if (!htmlContent?.query?.pages?.length) {
         this.logger.error(`No page found with name: ${queryParamsDTO.name}`);
-        throw new HttpException(`Person not found on English Wikipedia`, HttpStatus.NOT_FOUND);
+        throw new HttpException({
+          message: `Person not found on English Wikipedia`,
+          page: false
+        }, HttpStatus.NOT_FOUND);
       }
 
       // Check if revisions is available 
       if (!htmlContent.query.pages[0].revisions?.length) {
         this.logger.error(`No page found with name: ${queryParamsDTO.name}`);
-        throw new HttpException(`Person not found on English Wikipedia`, HttpStatus.NOT_FOUND);
+        throw new HttpException({
+          message: `Person not found on English Wikipedia`,
+          page: false
+        }, HttpStatus.NOT_FOUND);
       }
 
       // Extract the short description from the wikitext using a regular expression pattern
@@ -67,12 +73,15 @@ export class AppService {
       // Check if not short description available 
       if (!shortDescription) {
         let suggestions = this.suggestSimilarNames(wikitext, normalizedName);
-        throw new HttpException(`No exact short description was found for the person on English Wikipedia but there might be are similar names : ${suggestions}`,
-          HttpStatus.BAD_REQUEST);
+        throw new HttpException({
+          message: `No exact short description was found for the person on English Wikipedia but there might be are similar names : ${suggestions}`,
+          page: true
+        },
+          HttpStatus.NOT_FOUND);
       }
 
       //If short description is present return <IDEAL>
-      return {description:shortDescription};
+      return { description: shortDescription };
 
 
     } catch (error) {
@@ -83,35 +92,35 @@ export class AppService {
   }
 
 
-/**
- * Send an HTTP GET request to the Wikipedia API and extract the HTML content of the page.
- * 
- * @param baseUrl - The base URL of the Wikipedia API.
- * @param queryParams - An object containing the query parameters for the Wikipedia API request.
- * @returns The HTML content of the requested Wikipedia page.
- * @throws {HttpException} If an error occurs during the HTTP request.
- */
- async  getWikipediaHtmlContent(baseUrl: string, queryParams: {}): Promise<any> {
-  try {
-    // Send an HTTP GET request to the Wikipedia API and extract the HTML content of the page
-    const htmlContent = await lastValueFrom(
-      this.httpService.get(baseUrl, { params: queryParams }).pipe(
-        map((response) => response.data)
-      )
-    ).catch((error) => {
-      // If an error occurs during the HTTP request, log the error and throw an HttpException
-      this.logger.error(error);
-      throw new HttpException("Service not available. Kindly try again another time", HttpStatus.GATEWAY_TIMEOUT);
-    });
-    
-    // Return the extracted HTML content
-    return htmlContent;
+  /**
+   * Send an HTTP GET request to the Wikipedia API and extract the HTML content of the page.
+   * 
+   * @param baseUrl - The base URL of the Wikipedia API.
+   * @param queryParams - An object containing the query parameters for the Wikipedia API request.
+   * @returns The HTML content of the requested Wikipedia page.
+   * @throws {HttpException} If an error occurs during the HTTP request.
+   */
+  async getWikipediaHtmlContent(baseUrl: string, queryParams: {}): Promise<any> {
+    try {
+      // Send an HTTP GET request to the Wikipedia API and extract the HTML content of the page
+      const htmlContent = await lastValueFrom(
+        this.httpService.get(baseUrl, { params: queryParams }).pipe(
+          map((response) => response.data)
+        )
+      ).catch((error) => {
+        // If an error occurs during the HTTP request, log the error and throw an HttpException
+        this.logger.error(error);
+        throw new HttpException("Service not available. Kindly try again another time", HttpStatus.SERVICE_UNAVAILABLE);
+      });
 
-  } catch (error) {
-    // If an error occurs, log the error and re-throw it to the calling function
-    throw error;
+      // Return the extracted HTML content
+      return htmlContent;
+
+    } catch (error) {
+      // If an error occurs, log the error and re-throw it to the calling function
+      throw error;
+    }
   }
-}
 
 
   /**
