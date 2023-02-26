@@ -67,7 +67,7 @@ export class AppService {
       // Check if not short description available 
       if (!shortDescription) {
         let suggestions = this.suggestSimilarNames(wikitext, normalizedName);
-        throw new HttpException(`No exact short description was found for the person on English Wikipedia but there are similar names : ${suggestions}`,
+        throw new HttpException(`No exact short description was found for the person on English Wikipedia but there might be are similar names : ${suggestions}`,
           HttpStatus.BAD_REQUEST);
       }
 
@@ -163,7 +163,7 @@ export class AppService {
 
     // If no matches are found, return an error message
     if (!namesMatch) {
-      return "No similar names found";
+      return "None";
     }
 
     // Filter out any names that contain "Category" and are not the input name
@@ -173,7 +173,7 @@ export class AppService {
 
     // If no similar names are found, return an error message with the input name
     if (similarNames.length === 0) {
-      return `No similar names found for "${name}"`;
+      return `None`;
     }
 
     // Return a string with the similar names joined by commas

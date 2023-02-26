@@ -10,6 +10,8 @@ async function bootstrap() {
     .setDescription('API for getting short descriptions of people from Wikipedia')
     .setVersion('1.0')
     .build();
+    app.setGlobalPrefix('api/v1');
+
 
   app.useGlobalPipes(new ValidationPipe());
   const document = SwaggerModule.createDocument(app, config);

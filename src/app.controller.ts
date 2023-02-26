@@ -42,7 +42,7 @@ export class AppController {
     },
   })
   @ApiBadRequestResponse({
-    description: 'No short description was found on English Wikipedia but there are similar names :',
+    description: 'No short description was found on English Wikipedia but there might be similar names :',
     schema: {
       properties: {
         statusCode: {
@@ -51,12 +51,12 @@ export class AppController {
         },
         message: {
           type: 'string',
-          example: 'No short description was found on English Wikipedia but there are similar names : ',
+          example: 'No short description was found on English Wikipedia but there might be similar names : ',
         }
       },
     },
   })
-  @Get()
+  @Get('short-description')
   async getShortDescription(@Query() queryParamsDTO: GetShortDescriptionInput): Promise<GetShortDescriptionOutput> {
     return await this.appService.getShortDescription(queryParamsDTO);
   }

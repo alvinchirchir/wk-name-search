@@ -25,7 +25,7 @@ describe('AppService', () => {
     it("returns an error message if no matches are found", () => {
       const content = "This is some random text with no double bracket names.";
       const name = "John";
-      expect(appService.suggestSimilarNames(content, name)).toBe("No similar names found");
+      expect(appService.suggestSimilarNames(content, name)).toBe("None");
     });
 
     it("filters out Category names and names that don't include the input name", () => {
@@ -37,7 +37,7 @@ describe('AppService', () => {
     it("returns an error message if no similar names are found", () => {
       const content = "This is some [[Tom Hanks]] text with only one similar name.";
       const name = "Tommy";
-      expect(appService.suggestSimilarNames(content, name)).toBe('No similar names found for "Tommy"');
+      expect(appService.suggestSimilarNames(content, name)).toBe('None');
     });
   });
 
