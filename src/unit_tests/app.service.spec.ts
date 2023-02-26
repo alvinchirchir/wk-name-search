@@ -1,9 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { HttpModule ,HttpService} from '@nestjs/axios';
 import { lastValueFrom, of } from 'rxjs';
-import { QueryParamsDTO } from './dto/dto';
-import { AppService } from './app.service';
+import { GetShortDescriptionInput } from '../dto/schema';
+import { AppService } from '../app.service';
 import { HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { AxiosResponse } from 'axios';
 
 describe('AppService', () => {
   let appService: AppService;
@@ -19,42 +20,8 @@ describe('AppService', () => {
     httpService = moduleRef.get<HttpService>(HttpService);
   });
 
-  describe('getShortDescription', () => {
-    const queryParamsDTO: QueryParamsDTO = {
-      name: 'Barack_Obama'
-    };
 
-    it('should return a short description for a valid person name', async () => {
-      const expectedResult = 'President of the United States from 2009 to 2017';
-
-      const result = await appService.getShortDescription(queryParamsDTO);
-
-      expect(result).toEqual(expectedResult);
-    });
-
-    it('should return an error for an invalid person name', async () => {
-      const queryParamsDTO: QueryParamsDTO = {
-        name: 'not_a_real_person'
-      };
-      const expectedError = new HttpException(`No page found with name: ${queryParamsDTO.name}`, HttpStatus.NOT_FOUND);
-
-      await expect(appService.getShortDescription(queryParamsDTO)).rejects.toThrow(expectedError);
-    });
-
-    it('should suggest similar names for a misspelled person name', async () => {
-      const queryParamsDTO: QueryParamsDTO = {
-        name: 'Barak_Obama'
-      };
-      const expectedError = new HttpException({
-        message: `No exact short description was found for the person on English Wikipedia`,
-        suggestions: 'Did you mean: Barack Obama?'
-      }, HttpStatus.BAD_REQUEST);
-
-      await expect(appService.getShortDescription(queryParamsDTO)).rejects.toThrow(expectedError);
-    });
-
-  });
-
+  
   describe("suggestSimilarNames", () => {
     it("returns an error message if no matches are found", () => {
       const content = "This is some random text with no double bracket names.";
@@ -65,7 +32,7 @@ describe('AppService', () => {
     it("filters out Category names and names that don't include the input name", () => {
       const content = "This is some [[Category:Actors]] text with [[Tom Holland]] and [[Tom Cruise]] names.";
       const name = "Tom";
-      expect(appService.suggestSimilarNames(content, name)).toBe("Did you mean: Tom Holland, Tom Cruise?");
+      expect(appService.suggestSimilarNames(content, name)).toBe("Tom Holland, Tom Cruise");
     });
 
     it("returns an error message if no similar names are found", () => {

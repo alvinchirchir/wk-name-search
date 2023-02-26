@@ -6,7 +6,7 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { lastValueFrom, map } from 'rxjs';
-import { QueryParamsDTO } from './dto/dto';
+import { GetShortDescriptionInput, GetShortDescriptionOutput } from './dto/schema';
 
 @Injectable()
 export class AppService {
@@ -28,7 +28,7 @@ export class AppService {
   * @returns The short description of the Wikipedia page, or an empty string if no short description was found.
   * @throws HttpException if an error occurs during the HTTP request.
   */
-  async getShortDescription(queryParamsDTO: QueryParamsDTO): Promise<String> {
+  async getShortDescription(queryParamsDTO: GetShortDescriptionInput): Promise<any> {
     try {
       // Define the base URL of the Wikipedia API and the parameters of the API request
       const baseUrl = process.env.WIKIPEDIA_API_URL;
@@ -45,42 +45,35 @@ export class AppService {
         rvprop: process.env.WIKIPEDIA_RV_PROP
       }
 
-      // Send an HTTP GET request to the Wikipedia API and extract the wikitext of the page
-      const htmlContent = await lastValueFrom(
-        this.httpService.get(baseUrl, { params: queryParams }).pipe(
-          map((response) => response.data)
-        )
-      ).catch((error) => {
-        // If an error occurs during the HTTP request, log the error and throw an HttpException
-        this.logger.error(error);
-        throw new HttpException("Service not available. Kindly try again another time", HttpStatus.GATEWAY_TIMEOUT);
-      });
-
+      // Send an HTTP GET request to the Wikipedia API
+      const htmlContent = await this.getWikipediaHtmlContent(baseUrl, queryParams)
 
       // Check if the pages array is empty
       if (!htmlContent?.query?.pages?.length) {
         this.logger.error(`No page found with name: ${queryParamsDTO.name}`);
-        throw new HttpException(`No page found with name: ${queryParamsDTO.name}`, HttpStatus.NOT_FOUND);
+        throw new HttpException(`Person not found on English Wikipedia`, HttpStatus.NOT_FOUND);
       }
 
       // Check if revisions is available 
       if (!htmlContent.query.pages[0].revisions?.length) {
         this.logger.error(`No page found with name: ${queryParamsDTO.name}`);
-        throw new HttpException(`No page found with name: ${queryParamsDTO.name}`, HttpStatus.NOT_FOUND);
+        throw new HttpException(`Person not found on English Wikipedia`, HttpStatus.NOT_FOUND);
       }
 
       // Extract the short description from the wikitext using a regular expression pattern
       const wikitext = htmlContent.query.pages[0].revisions[0].content;
-      const shortDesc = this.extractShortDescription(wikitext);
+      const shortDescription: GetShortDescriptionOutput = this.extractShortDescription(wikitext);
 
-      if (shortDesc) {
-        return `${shortDesc}`;
-      } else {
-        throw new HttpException({
-          message: `No exact short description was found for the person on English Wikipedia`,
-          suggestions: this.suggestSimilarNames(wikitext, normalizedName)
-        }, HttpStatus.BAD_REQUEST);
+      // Check if not short description available 
+      if (!shortDescription) {
+        let suggestions = this.suggestSimilarNames(wikitext, normalizedName);
+        throw new HttpException(`No exact short description was found for the person on English Wikipedia but there are similar names : ${suggestions}`,
+          HttpStatus.BAD_REQUEST);
       }
+
+      //If short description is present return <IDEAL>
+      return shortDescription;
+
 
     } catch (error) {
       // If an error occurs, log the error and throw an HttpException
@@ -88,6 +81,39 @@ export class AppService {
       throw error
     }
   }
+
+
+/**
+ * Send an HTTP GET request to the Wikipedia API and extract the HTML content of the page.
+ * 
+ * @param baseUrl - The base URL of the Wikipedia API.
+ * @param queryParams - An object containing the query parameters for the Wikipedia API request.
+ * @returns The HTML content of the requested Wikipedia page.
+ * @throws {HttpException} If an error occurs during the HTTP request.
+ */
+ async  getWikipediaHtmlContent(baseUrl: string, queryParams: {}): Promise<any> {
+  try {
+    // Send an HTTP GET request to the Wikipedia API and extract the HTML content of the page
+    const htmlContent = await lastValueFrom(
+      this.httpService.get(baseUrl, { params: queryParams }).pipe(
+        map((response) => response.data)
+      )
+    ).catch((error) => {
+      // If an error occurs during the HTTP request, log the error and throw an HttpException
+      this.logger.error(error);
+      throw new HttpException("Service not available. Kindly try again another time", HttpStatus.GATEWAY_TIMEOUT);
+    });
+    
+    // Return the extracted HTML content
+    return htmlContent;
+
+  } catch (error) {
+    // If an error occurs, log the error and re-throw it to the calling function
+    throw error;
+  }
+}
+
+
   /**
    * Transforms a string by replacing spaces or underscores with underscores and capitalizing the first letter of each word
    * @param {string} str - The input string to transform
@@ -107,7 +133,7 @@ export class AppService {
    * @param wikitext A string of wikitext to search for the short description in.
    * @returns The short description, or an empty string if no short description was found.
    */
-  extractShortDescription(wikitext: string): string {
+  extractShortDescription(wikitext: string): any {
     // Define a regular expression pattern to match the short description field
     const shortDescPattern = /{{Short description\|(.+?)}}/;
 
@@ -151,7 +177,9 @@ export class AppService {
     }
 
     // Return a string with the similar names joined by commas
-    return `Did you mean: ${similarNames.join(", ")}?`;
+    return `${similarNames.join(", ")}`;
   }
+
+
 
 }

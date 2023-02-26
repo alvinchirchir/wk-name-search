@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
     .setTitle('Wk name search')
-    .setDescription('API to produce a Google-like short description of a person')
+    .setDescription('API for getting short descriptions of people from Wikipedia')
     .setVersion('1.0')
     .build();
 
