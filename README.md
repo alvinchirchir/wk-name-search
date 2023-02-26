@@ -10,7 +10,7 @@ There are three ways to install and run the project:
 
 - Raw Node.js installation
 - Docker container installation
-- Helm chart installation with Scaler,Grafana,Prometheus
+- Helm chart installation
 
 
 Choose the installation method that best fits your environment and requirements. The following sections provide detailed instructions for each method.
@@ -150,7 +150,7 @@ wk-name-search-prometheus-server    ClusterIP   10.99.185.33    <none>        80
 
 ```
 5. The wk-name-search server should now be running at `http://localhost:<DYNAMIC_PORT>`. For example from the above we can access the server from `http://localhost:30560`
-6. Additionally we can use grafana to visually see the metrics scrapped by prometheus. Follow the steps below to view analytics.
+6. Additionally we can access grafana to visually see the metrics scrapped by prometheus. Follow the steps below to view analytics.
 
 ###### Accessing Grafana
 1. Access the Grafana dashboard by entering the URL http://localhost:<DYNAMIC_PORT> in your web browser. For example, if the Grafana service is running locally on port 31763, the URL would be http://localhost:31763.
@@ -173,7 +173,7 @@ This will output the admin password which you can use to log in to Grafana.
 10. Select "Load" and choose "Prometheus" as the data source.
 11. If everything has been configured correctly, you should now be able to view metrics in the Node.js dashboard.
 
-![alt text](https://firebasestorage.googleapis.com/v0/b/github-resources.appspot.com/o/Grafana%20Dashboard%2FScreenshot%202023-02-26%20at%2015.52.05.jpg?alt=media&token=dd9ddef9-c0d9-4ade-8fef-a7af97300136)
+
 
 ###### API Documentation
 This API is documented using Swagger. Swagger provides a user-friendly interface for exploring and testing the API endpoints.
