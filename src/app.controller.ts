@@ -39,7 +39,7 @@ export class AppController {
           //example: 'Person not found on English Wikipedia',
         },
         page: {
-          type: 'string',
+          type: 'boolean',
            example: true,
            description: 'Indicates whether pages with similar names exist. If set to true it means there exist pages and suggestions are provided in message string and if false no suggestions are provided.  ',
         }
