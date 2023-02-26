@@ -150,6 +150,7 @@ wk-name-search-prometheus-server    ClusterIP   10.99.185.33    <none>        80
 
 ```
 5. The wk-name-search server should now be running at `http://localhost:<DYNAMIC_PORT>`. For example from the above we can access the server from `http://localhost:30560`
+<<<<<<< HEAD
 6. Additionally we can access grafana to visually see the metrics scrapped by prometheus. Follow the steps below to view analytics.
 
 ###### Accessing Grafana
@@ -159,6 +160,11 @@ wk-name-search-prometheus-server    ClusterIP   10.99.185.33    <none>        80
 
 3. Obtain the password by running the following command in your terminal:
 
+=======
+6. Additionally we can access grafana to visually see the metrics scrapped by prometheus. Follow the steps below to view analytics using grafana
+- Access the grafana dashboard from `http://localhost:<DYNAMIC_PORT>`. For example from the above we can see that wk-name-search-grafana is running locally as `http://localhost:31763`
+- Use admin as username. Password can be obtained by running the command
+>>>>>>> 157511454d1808e7ecb329a605499bade9924272
 ```console
 $ kubectl get secret --namespace default wk-name-search-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
