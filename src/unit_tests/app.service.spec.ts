@@ -4,7 +4,6 @@ import { lastValueFrom, of } from 'rxjs';
 import { GetShortDescriptionInput } from '../dto/schema';
 import { AppService } from '../app.service';
 import { HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { AxiosResponse } from 'axios';
 
 describe('AppService', () => {
   let appService: AppService;
@@ -88,4 +87,5 @@ describe('AppService', () => {
     });
   });
 
+  
 });

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsJSON, IsNotEmpty, IsString } from 'class-validator';
 
 export class GetShortDescriptionInput {
   @IsNotEmpty()
@@ -8,8 +8,8 @@ export class GetShortDescriptionInput {
 
 export class GetShortDescriptionOutput {
   @IsNotEmpty()
-  @IsString()
-  shortDescription: string;
+  @IsJSON()
+  description: {};
 }
 
 

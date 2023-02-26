@@ -17,12 +17,13 @@ export class AppController {
   @ApiOkResponse({
     description: 'The short description of the person',
     schema: {
-
-      type: 'string',
-      example: 'English actor (born 1996)',
-
-
-    },
+      properties: {
+        description: {
+          type: 'string',
+          example: 'English actor (born 1996)',
+        }
+      }
+    }
   })
 
   @ApiNotFoundResponse({

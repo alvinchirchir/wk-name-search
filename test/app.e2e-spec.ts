@@ -1,12 +1,12 @@
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -15,10 +15,48 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
+  });
+
+  describe('/ (GET)', () => {
+    it('should return a short description when given a valid name', async () => {
+      const name = 'Tom_Holland';
+      const response = await request(app.getHttpServer())
+        .get('/')
+        .query({ name })
+        .expect(HttpStatus.OK);
+
+
+      expect(response.text).toEqual(expect.any(String));
+    });
+
+    it('should return a 404 status code when given an invalid name', async () => {
+      const name = 'Invalid Name';
+      const response = await request(app.getHttpServer())
+        .get('/')
+        .query({ name })
+        .expect(HttpStatus.NOT_FOUND);
+
+      expect(response.body).toEqual(expect.objectContaining({
+        statusCode: expect.any(Number),
+        message: expect.any(String),
+      }));
+    });
+
+    it('should return a 400 status code when given a name with no short description and similar names', async () => {
+      const name = 'John';
+      const response = await request(app.getHttpServer())
+        .get('/')
+        .query({ name })
+        .expect(HttpStatus.BAD_REQUEST);
+
+
+      expect(response.body).toEqual(expect.objectContaining({
+        statusCode: expect.any(Number),
+        message: expect.any(String),
+      }));
+
+    });
   });
 });

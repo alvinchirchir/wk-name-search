@@ -28,7 +28,7 @@ export class AppService {
   * @returns The short description of the Wikipedia page, or an empty string if no short description was found.
   * @throws HttpException if an error occurs during the HTTP request.
   */
-  async getShortDescription(queryParamsDTO: GetShortDescriptionInput): Promise<any> {
+  async getShortDescription(queryParamsDTO: GetShortDescriptionInput): Promise<GetShortDescriptionOutput> {
     try {
       // Define the base URL of the Wikipedia API and the parameters of the API request
       const baseUrl = process.env.WIKIPEDIA_API_URL;
@@ -72,7 +72,7 @@ export class AppService {
       }
 
       //If short description is present return <IDEAL>
-      return shortDescription;
+      return {description:shortDescription};
 
 
     } catch (error) {
