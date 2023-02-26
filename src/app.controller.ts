@@ -36,11 +36,12 @@ export class AppController {
         },
         message: {
           type: 'string',
-          // example: 'Person not found on English Wikipedia',
+          //example: 'Person not found on English Wikipedia',
         },
         page: {
           type: 'string',
-           example: 'Indicates whether pages with similar names exist. Suggestions will be included in message string if true',
+           example: true,
+           description: 'Indicates whether pages with similar names exist. If set to true it means there exist pages and suggestions are provided in message string and if false no suggestions are provided.  ',
         }
       },
     },
