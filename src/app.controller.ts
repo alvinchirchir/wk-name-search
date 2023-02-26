@@ -3,7 +3,7 @@ import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, Ap
 import { AppService } from './app.service';
 import { GetShortDescriptionInput, GetShortDescriptionOutput } from './dto/schema'
 @Controller()
-@ApiTags('Search By Name')
+@ApiTags('Get Description By Name')
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
@@ -42,7 +42,7 @@ export class AppController {
     },
   })
   @ApiBadRequestResponse({
-    description: 'No short description was found on English Wikipedia but there might be similar names :',
+    description: 'No short description was found on English Wikipedia but there might be similar names : ...',
     schema: {
       properties: {
         statusCode: {
