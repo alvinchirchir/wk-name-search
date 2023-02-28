@@ -40,3 +40,7 @@ spec:
               value: '2'
             - name: WIKIPEDIA_RV_PROP
               value: 'content'           
+            - name: REDIS_URL
+              value: 'redis'
+            - name: REDIS_EXPIRY
+              value: '3000'      

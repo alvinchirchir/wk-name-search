@@ -1,0 +1,24 @@
+services:
+  wk-name-search:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - ./wk-name-search/:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+    - .env
+    command: npm run start:prod
+    ports:
+      - 3000:3000
+    depends_on:
+      - redis
+  redis: 
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data
+volumes:
+  redis:
+    driver: local

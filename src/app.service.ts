@@ -4,9 +4,12 @@
  */
 
 import { HttpService } from '@nestjs/axios';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { lastValueFrom, map } from 'rxjs';
+import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { iif, lastValueFrom, map } from 'rxjs';
 import { GetShortDescriptionInput, GetShortDescriptionOutput } from './dto/schema';
+import { createClient } from 'redis';
+import { RedisClient } from './persistent/redis';
 
 @Injectable()
 export class AppService {
@@ -16,9 +19,13 @@ export class AppService {
   /**
    * Creates a new instance of the AppService class.
    * @param httpService The HttpService to use for making HTTP requests to the Wikimedia API.
+   * @param redisClient The RedisClient to use for connecting to  Redis Server.
+
    */
   constructor(
     private readonly httpService: HttpService,
+    private readonly redisClient: RedisClient,
+
   ) { }
 
 
@@ -32,8 +39,13 @@ export class AppService {
     try {
       // Define the base URL of the Wikipedia API and the parameters of the API request
       const baseUrl = process.env.WIKIPEDIA_API_URL;
-
       const normalizedName = this.transformString(queryParamsDTO.name);
+      //Check if it exists in cache
+      const redisClient = await this.redisClient.createClient();
+      let description = await this.checkCache(normalizedName, redisClient);
+      if (description) {
+        return { description: description };
+      }
 
       const queryParams = {
         titles: normalizedName,
@@ -81,9 +93,8 @@ export class AppService {
       }
 
       //If short description is present return <IDEAL>
+      this.setInCache(normalizedName,shortDescription,redisClient);
       return { description: shortDescription };
-
-
     } catch (error) {
       // If an error occurs, log the error and throw an HttpException
       this.logger.error(error);
@@ -189,6 +200,24 @@ export class AppService {
     return `${similarNames.join(", ")}`;
   }
 
-
-
+  async checkCache(normalizedName: string, redisClient): Promise<string> {
+    try {
+      let description = await redisClient.get(normalizedName);
+      if (description) {
+        return description
+      }
+      return null;
+    } catch (error) {
+      this.logger.error(error)
+    }
+  }
+  async setInCache(normalizedName: string, shortDescription, redisClient) {
+    try {
+      await redisClient.set(normalizedName, shortDescription.toString());
+      await redisClient.expire(normalizedName, process.env.REDIS_EXPIRY);
+    } catch (error) {
+      this.logger.error(error);
+      this.logger.error("Could not set in redis");
+    }
+  }
 }
